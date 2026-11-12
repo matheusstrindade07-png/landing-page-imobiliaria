@@ -1,0 +1,451 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Imobiliária Trindade</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f2f4f8;
+            color: #222;
+        }
+
+        header {
+            background: #000f41;
+            color: white;
+            padding: 25px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 25px;
+        }
+
+        header p {
+            margin-top: 7px;
+            color: #d5dbea;
+        }
+
+        main {
+            width: 90%;
+            max-width: 1100px;
+            margin: 35px auto;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #000f41;
+        }
+
+        .login {
+            background: white;
+            max-width: 400px;
+            margin: 70px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+
+        .login h2 {
+            text-align: center;
+        }
+
+        .login input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .resumo {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 35px;
+        }
+
+        .card {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 28px;
+            color: #000f41;
+        }
+
+        .agendamento {
+            background: white;
+            padding: 22px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px #00000012;
+        }
+
+        .agendamento p {
+            margin: 9px 0;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .PENDENTE { color: #d18a00; }
+        .APROVADO { color: #168344; }
+        .REJEITADO { color: #c62828; }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            margin: 12px 8px 0 0;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .aprovar {
+            background: #168344;
+        }
+
+        .rejeitar {
+            background: #c62828;
+        }
+
+        .atualizar {
+            background: #000f41;
+            margin-bottom: 20px;
+        }
+
+        .entrar {
+            background: #000f41;
+            width: 100%;
+            margin: 12px 0 0;
+        }
+
+        .sair {
+            background: #c62828;
+            margin: 0;
+        }
+
+        #mensagemLogin {
+            margin-top: 15px;
+            color: #c62828;
+            text-align: center;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        @media (max-width: 700px) {
+            .resumo {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            header {
+                gap: 15px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <div>
+        <h1>Imobiliária Trindade</h1>
+        <p>Painel Administrativo</p>
+    </div>
+
+    <button class="sair" id="botaoSair" hidden onclick="sair()">
+        Sair
+    </button>
+</header>
+
+<section class="login" id="telaLogin">
+    <h2>Login administrativo</h2>
+
+    <form id="formLogin">
+        <input
+            type="text"
+            id="usuario"
+            placeholder="Usuário"
+            autocomplete="username"
+            required
+        >
+
+        <input
+            type="password"
+            id="senha"
+            placeholder="Senha"
+            autocomplete="current-password"
+            required
+        >
+
+        <button type="submit" class="entrar" id="botaoEntrar">
+            Entrar
+        </button>
+    </form>
+
+    <p id="mensagemLogin"></p>
+</section>
+
+<main id="painel" hidden>
+
+    <h2>Solicitações de visitas</h2>
+
+    <section class="resumo">
+        <div class="card">
+            <p>Total</p>
+            <h3 id="total">0</h3>
+        </div>
+
+        <div class="card">
+            <p>Pendentes</p>
+            <h3 id="pendentes">0</h3>
+        </div>
+
+        <div class="card">
+            <p>Aprovados</p>
+            <h3 id="aprovados">0</h3>
+        </div>
+
+        <div class="card">
+            <p>Rejeitados</p>
+            <h3 id="rejeitados">0</h3>
+        </div>
+    </section>
+
+    <button class="atualizar" onclick="carregarAgendamentos()">
+        Atualizar solicitações
+    </button>
+
+    <div id="agendamentos">Carregando solicitações...</div>
+
+</main>
+
+<script>
+    const API = "https://backend-imobiliaria-trindade.onrender.com/agendamentos";
+
+    let autenticacao = "";
+
+    document.getElementById("formLogin").addEventListener("submit", entrar);
+
+    function criarAutenticacao(usuario, senha) {
+        const dados = `${usuario}:${senha}`;
+        return "Basic " + btoa(unescape(encodeURIComponent(dados)));
+    }
+
+    async function entrar(event) {
+        event.preventDefault();
+
+        const usuario = document.getElementById("usuario").value;
+        const senha = document.getElementById("senha").value;
+        const mensagem = document.getElementById("mensagemLogin");
+        const botao = document.getElementById("botaoEntrar");
+
+        botao.disabled = true;
+        botao.textContent = "Verificando...";
+        mensagem.textContent = "";
+
+        autenticacao = criarAutenticacao(usuario, senha);
+
+        try {
+            const dados = await buscarAgendamentos();
+
+            document.getElementById("telaLogin").hidden = true;
+            document.getElementById("painel").hidden = false;
+            document.getElementById("botaoSair").hidden = false;
+
+            document.getElementById("senha").value = "";
+
+            mostrarAgendamentos(dados);
+
+        } catch (erro) {
+            autenticacao = "";
+
+            mensagem.textContent =
+                erro.message === "401"
+                    ? "Usuário ou senha incorretos."
+                    : "Não foi possível conectar ao servidor. Tente novamente.";
+
+        } finally {
+            botao.disabled = false;
+            botao.textContent = "Entrar";
+        }
+    }
+
+    async function buscarAgendamentos() {
+        const resposta = await fetch(API, {
+            headers: {
+                "Authorization": autenticacao
+            }
+        });
+
+        if (resposta.status === 401) {
+            throw new Error("401");
+        }
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar agendamentos.");
+        }
+
+        return await resposta.json();
+    }
+
+    async function carregarAgendamentos() {
+        try {
+            const dados = await buscarAgendamentos();
+            mostrarAgendamentos(dados);
+
+        } catch (erro) {
+            document.getElementById("agendamentos").textContent =
+                "Não foi possível carregar os agendamentos.";
+        }
+    }
+
+    function mostrarAgendamentos(dados) {
+        const lista = document.getElementById("agendamentos");
+
+        document.getElementById("total").textContent = dados.length;
+
+        document.getElementById("pendentes").textContent =
+            dados.filter(a => a.status === "PENDENTE").length;
+
+        document.getElementById("aprovados").textContent =
+            dados.filter(a => a.status === "APROVADO").length;
+
+        document.getElementById("rejeitados").textContent =
+            dados.filter(a => a.status === "REJEITADO").length;
+
+        lista.innerHTML = "";
+
+        if (dados.length === 0) {
+            lista.textContent = "Nenhuma solicitação encontrada.";
+            return;
+        }
+
+        dados.forEach(a => {
+            const item = document.createElement("div");
+            item.className = "agendamento";
+
+            const titulo = document.createElement("h3");
+            titulo.textContent = a.imovel;
+
+            item.appendChild(titulo);
+
+            const campos = [
+                ["Cliente:", a.nome],
+                ["Telefone:", a.telefone],
+                ["E-mail:", a.email],
+                ["Data:", a.dataVisita],
+                ["Horário:", a.horario]
+            ];
+
+            campos.forEach(([rotulo, valor]) => {
+                const p = document.createElement("p");
+                const strong = document.createElement("strong");
+
+                strong.textContent = rotulo + " ";
+                p.appendChild(strong);
+                p.appendChild(document.createTextNode(valor ?? ""));
+
+                item.appendChild(p);
+            });
+
+            const status = document.createElement("p");
+            status.className = "status " + a.status;
+            status.textContent = "Status: " + a.status;
+
+            item.appendChild(status);
+
+            if (a.status === "PENDENTE") {
+                const aprovar = document.createElement("button");
+                aprovar.className = "aprovar";
+                aprovar.textContent = "Aprovar";
+                aprovar.onclick = () => alterarStatus(a.id, "APROVADO");
+
+                const rejeitar = document.createElement("button");
+                rejeitar.className = "rejeitar";
+                rejeitar.textContent = "Rejeitar";
+                rejeitar.onclick = () => alterarStatus(a.id, "REJEITADO");
+
+                item.appendChild(aprovar);
+                item.appendChild(rejeitar);
+            }
+
+            lista.appendChild(item);
+        });
+    }
+
+    async function alterarStatus(id, status) {
+        try {
+            const resposta = await fetch(`${API}/${id}/status`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": autenticacao
+                },
+                body: JSON.stringify({ status: status })
+            });
+
+            if (resposta.status === 401) {
+                sair();
+                alert("Sua autenticação expirou. Entre novamente.");
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error("Não foi possível atualizar o status.");
+            }
+
+            alert("Solicitação atualizada com sucesso!");
+
+            await carregarAgendamentos();
+
+        } catch (erro) {
+            alert("Erro ao atualizar a solicitação.");
+            console.error(erro);
+        }
+    }
+
+    function sair() {
+        autenticacao = "";
+
+        document.getElementById("painel").hidden = true;
+        document.getElementById("botaoSair").hidden = true;
+        document.getElementById("telaLogin").hidden = false;
+
+        document.getElementById("usuario").value = "";
+        document.getElementById("senha").value = "";
+        document.getElementById("mensagemLogin").textContent = "";
+    }
+</script>
+
+</body>
+</html>

@@ -153,3 +153,197 @@ nav a:hover {
     background-color: #162b70;
     transform: scale(1.05);
 }
+
+.sobre {
+    padding: 70px 50px;
+    text-align: center;
+    background-color: white;
+}
+
+.sobre h2 {
+    font-size: 35px;
+    color: #000f41;
+    margin-bottom: 25px;
+}
+
+.sobre p {
+    max-width: 800px;
+    margin: 15px auto;
+    font-size: 18px;
+    line-height: 1.6;
+    color: #555;
+}
+
+
+.contato {
+    padding: 70px 50px;
+    text-align: center;
+    background-color: #f5f5f5;
+}
+
+.contato h2 {
+    font-size: 35px;
+    color: #000f41;
+    margin-bottom: 25px;
+}
+
+.contato p {
+    font-size: 18px;
+    color: #555;
+    margin: 12px 0;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+
+    justify-content: center;
+    align-items: center;
+
+    z-index: 1000;
+}
+
+.modal-conteudo {
+    background-color: white;
+    width: 500px;
+    max-width: 90%;
+    padding: 35px;
+    border-radius: 15px;
+
+    position: relative;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+    animation: aparecer 0.3s ease;
+}
+
+.modal-conteudo h2 {
+    color: #000f41;
+    font-size: 28px;
+    margin-top: 0;
+}
+
+.modal-conteudo p {
+    font-size: 17px;
+    color: #555;
+    line-height: 1.5;
+}
+
+#modalPreco {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000f41;
+}
+
+.fechar {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+
+    background: none;
+    border: none;
+
+    font-size: 30px;
+    color: #555;
+
+    cursor: pointer;
+}
+
+.fechar:hover {
+    color: #000f41;
+}
+
+.botao-contato {
+    background-color: #000f41;
+    color: white;
+
+    border: none;
+    padding: 13px 25px;
+
+    border-radius: 7px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.botao-contato:hover {
+    background-color: #162b70;
+}
+
+@keyframes aparecer {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.modal-conteudo form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.modal-conteudo input,
+.modal-conteudo textarea {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 13px;
+
+    border: 1px solid #ccc;
+    border-radius: 7px;
+
+    font-size: 16px;
+
+    font-family: Arial, sans-serif;
+}
+
+.modal-conteudo textarea {
+    height: 100px;
+    resize: none;
+}
+
+.modal-conteudo input:focus,
+.modal-conteudo textarea:focus {
+    outline: none;
+    border-color: #000f41;
+}
+
+.botao-enviar {
+    background-color: #000f41;
+    color: white;
+
+    border: none;
+    padding: 14px;
+
+    border-radius: 7px;
+
+    font-size: 16px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.botao-enviar:hover {
+    background-color: #162b70;
+}
+
+#imovelSelecionado {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 7px;
+    color: #000f41;
+    font-weight: bold;
+}
